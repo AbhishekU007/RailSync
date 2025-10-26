@@ -1,0 +1,42 @@
+# Railway Reservation System - Requirements (informational)
+# This is not a Python dependencies file; it documents required tools and key deps.
+
+# System / Tooling
+Java >= 17
+Maven >= 3.6
+MySQL >= 8
+Node >= 16
+npm >= 8 (or yarn)
+
+# Backend (Java / Spring Boot)
+# Actual dependencies are managed in backend/pom.xml
+# Key libs used:
+# - spring-boot-starter-web
+# - spring-boot-starter-data-jpa
+# - mysql-connector-j
+# - lombok
+# - spring-boot-starter-validation
+
+# Frontend (React)
+# Actual dependencies are managed in frontend/package.json
+# Key libs used:
+# - react 18
+# - react-router-dom
+# - axios
+# - tailwindcss (dev + postcss + autoprefixer)
+
+# Useful commands (Windows)
+# Backend
+cd backend
+mvn clean install
+mvn spring-boot:run
+
+# Frontend
+cd frontend
+npm install
+npm start
+
+# Notes
+# - Update DB credentials in backend/src/main/resources/application.properties
+# - DataSeeder provides sample data; disable its @Component after first successful seed to avoid duplicates
+```// filepath: d:\Railway Reservation System\requirements.txt
