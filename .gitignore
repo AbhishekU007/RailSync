@@ -36,3 +36,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Project Documentation
+MIGRATION_SUMMARY.md
