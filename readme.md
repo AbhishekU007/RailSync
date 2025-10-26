@@ -197,6 +197,27 @@ npm install
 
 ---
 
+## 🚀 Deployment
+
+Ready to deploy online? We've got you covered!
+
+**Quick Start:** See `DEPLOY_CHECKLIST.md` for step-by-step deployment guide.
+
+**Platforms Used:**
+- Backend: Render (Docker) - Free tier
+- Frontend: Vercel - Free tier  
+- Database: MongoDB Atlas - Already configured!
+
+**Deployment Files Included:**
+- `backend/Dockerfile` - Docker configuration for Render
+- `DEPLOY_CHECKLIST.md` - Quick deployment steps
+- `DEPLOYMENT.md` - Detailed deployment guide
+- `RENDER_GUIDE.md` - Visual guide for Render setup
+
+Total deployment time: ~30 minutes | Total cost: $0 ✅
+
+---
+
 ## 📜 License
 MIT License
 
