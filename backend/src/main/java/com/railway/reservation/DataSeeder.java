@@ -23,11 +23,10 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Check if data already exists
-        if (userRepository.count() > 0 || trainRepository.count() > 0) {
-            System.out.println("Data already exists. Skipping seeding.");
-            return;
-        }
+        // Clear existing data to ensure fresh seeding with all 32 trains
+        trainRepository.deleteAll();
+        userRepository.deleteAll();
+        System.out.println("Cleared existing data.");
 
         System.out.println("Seeding initial data...");
 
@@ -708,8 +707,50 @@ public class DataSeeder implements CommandLineRunner {
         train30.setFirstAcSeats(34);
         trainRepository.save(train30);
 
+        // Tundla to Dehradun
+        Train train31 = new Train();
+        train31.setTrainName("Dehradun Express");
+        train31.setTrainNumber("14042");
+        train31.setSource("Tundla");
+        train31.setDestination("Dehradun");
+        train31.setDepartureTime("01:30");
+        train31.setArrivalTime("09:10");
+        train31.setTotalSeats(400);
+        train31.setGeneralPrice(200.0);
+        train31.setSleeperPrice(320.0);
+        train31.setThirdAcPrice(480.0);
+        train31.setSecondAcPrice(700.0);
+        train31.setFirstAcPrice(1050.0);
+        train31.setGeneralSeats(80);
+        train31.setSleeperSeats(120);
+        train31.setThirdAcSeats(80);
+        train31.setSecondAcSeats(80);
+        train31.setFirstAcSeats(40);
+        trainRepository.save(train31);
+
+        // Dehradun to Tundla
+        Train train32 = new Train();
+        train32.setTrainName("Dehradun Express");
+        train32.setTrainNumber("14041");
+        train32.setSource("Dehradun");
+        train32.setDestination("Tundla");
+        train32.setDepartureTime("22:15");
+        train32.setArrivalTime("06:00");
+        train32.setTotalSeats(400);
+        train32.setGeneralPrice(200.0);
+        train32.setSleeperPrice(320.0);
+        train32.setThirdAcPrice(480.0);
+        train32.setSecondAcPrice(700.0);
+        train32.setFirstAcPrice(1050.0);
+        train32.setGeneralSeats(80);
+        train32.setSleeperSeats(120);
+        train32.setThirdAcSeats(80);
+        train32.setSecondAcSeats(80);
+        train32.setFirstAcSeats(40);
+        trainRepository.save(train32);
+
         System.out.println("Data seeding completed successfully!");
-        System.out.println("Total trains added: 30");
+        System.out.println("Total trains added: 32");
         System.out.println("Admin credentials: admin@railway.com / admin123");
         System.out.println("User credentials: john@example.com / password123");
     }

@@ -60,6 +60,13 @@ public class TrainController {
         return ResponseEntity.ok(trains);
     }
     
+    // Get all unique cities (for autocomplete)
+    @GetMapping("/cities")
+    public ResponseEntity<List<String>> getAllCities() {
+        List<String> cities = trainService.getAllUniqueCities();
+        return ResponseEntity.ok(cities);
+    }
+    
     // Get available seats for a specific train, date, and class
     @GetMapping("/{id}/availability")
     public ResponseEntity<?> getTrainAvailability(

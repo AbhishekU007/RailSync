@@ -1,11 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAllCities } from '../services/api';
 
 const Home = () => {
   const navigate = useNavigate();
   const [source, setSource] = useState('');
   const [destination, setDestination] = useState('');
   const [travelDate, setTravelDate] = useState('');
+  const [cities, setCities] = useState([]);
+  const [sourceSuggestions, setSourceSuggestions] = useState([]);
+  const [destinationSuggestions, setDestinationSuggestions] = useState([]);
+  const [showSourceSuggestions, setShowSourceSuggestions] = useState(false);
+  const [showDestinationSuggestions, setShowDestinationSuggestions] = useState(false);
+
+  useEffect(() => {
+    // Fetch all cities when component mounts
+    const fetchCities = async () => {
+      try {
+        const response = await getAllCities();
+        setCities(response.data);
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      }
+    };
+    fetchCities();
+  }, []);
+
+  const handleSourceChange = (e) => {
+    const value = e.target.value;
+    setSource(value);
+    
+    if (value.trim() === '') {
+      setSourceSuggestions([]);
+      setShowSourceSuggestions(false);
+    } else {
+      const filtered = cities.filter(city =>
+        city.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setSourceSuggestions(filtered);
+      setShowSourceSuggestions(true);
+    }
+  };
+
+  const handleDestinationChange = (e) => {
+    const value = e.target.value;
+    setDestination(value);
+    
+    if (value.trim() === '') {
+      setDestinationSuggestions([]);
+      setShowDestinationSuggestions(false);
+    } else {
+      const filtered = cities.filter(city =>
+        city.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setDestinationSuggestions(filtered);
+      setShowDestinationSuggestions(true);
+    }
+  };
+
+  const selectSourceCity = (city) => {
+    setSource(city);
+    setShowSourceSuggestions(false);
+  };
+
+  const selectDestinationCity = (city) => {
+    setDestination(city);
+    setShowDestinationSuggestions(false);
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -123,32 +184,64 @@ const Home = () => {
               
               <form onSubmit={handleSearch} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="group">
+                  <div className="group relative">
                     <label className="block text-blue-200 font-semibold mb-3 text-sm uppercase tracking-wide">
                       🚉 Departure Station
                     </label>
                     <input
                       type="text"
                       value={source}
-                      onChange={(e) => setSource(e.target.value)}
-                      placeholder="e.g., New Delhi"
+                      onChange={handleSourceChange}
+                      onFocus={() => source && setShowSourceSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSourceSuggestions(false), 200)}
+                      placeholder="e.g., Delhi"
                       className="w-full px-6 py-4 bg-white/90 border-2 border-transparent rounded-xl focus:ring-4 focus:ring-blue-500/50 focus:border-blue-400 focus:bg-white transition-all duration-300 text-gray-800 placeholder-gray-400 font-medium text-lg"
                       required
+                      autoComplete="off"
                     />
+                    {showSourceSuggestions && sourceSuggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-60 overflow-y-auto">
+                        {sourceSuggestions.map((city, index) => (
+                          <div
+                            key={index}
+                            onClick={() => selectSourceCity(city)}
+                            className="px-6 py-3 hover:bg-blue-50 cursor-pointer text-gray-800 font-medium border-b border-gray-100 last:border-b-0 transition-colors duration-150"
+                          >
+                            <span className="text-blue-600">📍</span> {city}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="group">
+                  <div className="group relative">
                     <label className="block text-blue-200 font-semibold mb-3 text-sm uppercase tracking-wide">
                       🎯 Arrival Station
                     </label>
                     <input
                       type="text"
                       value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      placeholder="e.g., Mumbai Central"
+                      onChange={handleDestinationChange}
+                      onFocus={() => destination && setShowDestinationSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowDestinationSuggestions(false), 200)}
+                      placeholder="e.g., Mumbai"
                       className="w-full px-6 py-4 bg-white/90 border-2 border-transparent rounded-xl focus:ring-4 focus:ring-purple-500/50 focus:border-purple-400 focus:bg-white transition-all duration-300 text-gray-800 placeholder-gray-400 font-medium text-lg"
                       required
+                      autoComplete="off"
                     />
+                    {showDestinationSuggestions && destinationSuggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-60 overflow-y-auto">
+                        {destinationSuggestions.map((city, index) => (
+                          <div
+                            key={index}
+                            onClick={() => selectDestinationCity(city)}
+                            className="px-6 py-3 hover:bg-purple-50 cursor-pointer text-gray-800 font-medium border-b border-gray-100 last:border-b-0 transition-colors duration-150"
+                          >
+                            <span className="text-purple-600">📍</span> {city}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -371,6 +464,9 @@ const Home = () => {
           <div className="container mx-auto px-4 text-center text-blue-200">
             <p className="text-sm">
               © 2025 RailSync. Revolutionizing railway reservations across India.
+            </p>
+            <p className="text-sm py-2">
+              Built with ❤️ by <a href="https://github.com/AbhishekU007" target="_blank" rel="noopener noreferrer"> Abhishek </a>
             </p>
           </div>
         </div>

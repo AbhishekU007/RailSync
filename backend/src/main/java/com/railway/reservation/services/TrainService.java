@@ -55,6 +55,16 @@ public class TrainService {
         return trainRepository.findBySourceIgnoreCaseAndDestinationIgnoreCase(source, destination);
     }
     
+    // Get all unique cities from trains
+    public List<String> getAllUniqueCities() {
+        List<Train> allTrains = trainRepository.findAll();
+        return allTrains.stream()
+            .flatMap(train -> java.util.stream.Stream.of(train.getSource(), train.getDestination()))
+            .distinct()
+            .sorted()
+            .collect(java.util.stream.Collectors.toList());
+    }
+    
     // Update train
     public Train updateTrain(String id, Train updatedTrain) {
         Train train = getTrainById(id);
