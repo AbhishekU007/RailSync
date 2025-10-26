@@ -15,6 +15,7 @@
     <groupId>com.railway</groupId>
     <artifactId>reservation</artifactId>
     <version>1.0.0</version>
+    <packaging>jar</packaging>
     <name>Railway Reservation System</name>
     
     <properties>
