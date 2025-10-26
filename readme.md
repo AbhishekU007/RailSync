@@ -1,129 +1,84 @@
-# Railway Reservation System
+# 🚂 RailSync - Railway Reservation System
 
-A full-stack Railway Reservation System built with **Java Spring Boot** (Backend) and **React** (Frontend).
+A full-stack Railway Reservation System built with **Java Spring Boot** and **React**, featuring a modern dark-themed UI and comprehensive booking management.
 
-## Features
+## ✨ Key Features
 
-### User Features
-- ✅ User Registration & Login
-- ✅ Search trains by source and destination
-- ✅ Book train tickets
-- ✅ View booking history
-- ✅ Cancel bookings
+- 🎨 **Modern UI/UX**: Dark gradient theme with glassmorphism effects and smooth animations
+- 🎫 **Multi-Class Booking**: 5 travel classes (General, Sleeper, 3AC, 2AC, 1AC) with independent pricing and seat management
+- 👥 **Role-Based Access**: Separate user and admin dashboards with protected routes
+- 🗄️ **MongoDB Integration**: Cloud database (MongoDB Atlas) with auto-seeding of 32 real Indian trains
+- ⚡ **Real-time Updates**: Dynamic seat availability tracking per date and class
+- 📱 **Fully Responsive**: Mobile-first design with Tailwind CSS
 
-### Admin Features
-- ✅ Add new trains
-- ✅ View all trains
-- ✅ Delete trains
-- ✅ View all bookings
-
-## Tech Stack
+## 🛠 Tech Stack
 
 ### Backend
-- Java 17+
-- Spring Boot 3.2.0
-- Spring Data JPA
-- MySQL Database
-- Maven
-- Lombok
+- **Java 17+**
+- **Spring Boot 3.2.0**
+- **Spring Data MongoDB**
+- **MongoDB Atlas** (Cloud Database)
+- **Maven** (Build Tool)
+- **Jakarta Validation**
+- **RESTful API Architecture**
 
 ### Frontend
-- React 18
-- React Router v6
-- Axios
-- Tailwind CSS
+- **React 18**
+- **React Router v6** (SPA Navigation)
+- **Axios** (HTTP Client)
+- **Tailwind CSS** (Utility-first CSS)
+- **Modern ES6+ JavaScript**
+- **Responsive Design Patterns**
 
-## Project Structure
+## 🚀 Quick Start Guide
 
-```
-railway-reservation/
-├── backend/
-│   ├── src/main/java/com/railway/reservation/
-│   │   ├── controllers/
-│   │   │   ├── UserController.java
-│   │   │   ├── TrainController.java
-│   │   │   └── BookingController.java
-│   │   ├── models/
-│   │   │   ├── User.java
-│   │   │   ├── Train.java
-│   │   │   └── Booking.java
-│   │   ├── repositories/
-│   │   │   ├── UserRepository.java
-│   │   │   ├── TrainRepository.java
-│   │   │   └── BookingRepository.java
-│   │   ├── services/
-│   │   │   ├── UserService.java
-│   │   │   ├── TrainService.java
-│   │   │   └── BookingService.java
-│   │   └── RailwayReservationApplication.java
-│   ├── src/main/resources/
-│   │   └── application.properties
-│   └── pom.xml
-│
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   │   └── Navbar.jsx
-    │   ├── pages/
-    │   │   ├── Home.jsx
-    │   │   ├── Login.jsx
-    │   │   ├── Register.jsx
-    │   │   ├── TrainList.jsx
-    │   │   ├── BookTicket.jsx
-    │   │   ├── MyBookings.jsx
-    │   │   └── AdminDashboard.jsx
-    │   ├── services/
-    │   │   └── api.js
-    │   ├── App.jsx
-    │   ├── index.js
-    │   └── index.css
-    ├── package.json
-    └── tailwind.config.js
-```
+### Prerequisites
 
-## Prerequisites
+**Backend Requirements:**
+- ☕ Java 17 or higher
+- 📦 Maven 3.6+
+- 🍃 MongoDB Atlas account (or local MongoDB)
 
-### Backend
-- Java 17 or higher
-- Maven 3.6+
-- MySQL 8.0+
+**Frontend Requirements:**
+- 🟢 Node.js 16+ 
+- 📦 npm or yarn
 
-### Frontend
-- Node.js 16+
-- npm or yarn
+---
 
-## Setup Instructions
+### 🔧 Installation Steps
 
-### 1. Database Setup
-
+#### 1️⃣ Clone the Repository
 ```bash
-# Login to MySQL
-mysql -u root -p
-
-# Create database
-CREATE DATABASE railway_db;
+git clone https://github.com/AbhishekU007/Railway-Reservation-System.git
+cd Railway-Reservation-System
 ```
 
-### 2. Backend Setup
+#### 2️⃣ Backend Setup
 
 ```bash
 # Navigate to backend directory
 cd backend
 
-# Update application.properties with your MySQL credentials
-# Default: username=root, password=root
+# The application is pre-configured with MongoDB Atlas
+# Check application.properties for database connection
+# Current config: MongoDB Atlas (Cloud)
 
 # Install dependencies and run
 mvn clean install
 mvn spring-boot:run
 ```
 
-The backend will start on `http://localhost:8080`
+✅ **Backend will start on:** `http://localhost:8080`
 
-### 3. Frontend Setup
+**🌱 Data Seeding:** On first run, the system automatically seeds:
+- 2 users (1 admin, 1 regular user)
+- 32 trains covering major Indian cities
+- All seat configurations (General, Sleeper, 3AC, 2AC, 1AC)
+
+#### 3️⃣ Frontend Setup
 
 ```bash
-# Navigate to frontend directory
+# Navigate to frontend directory (from project root)
 cd frontend
 
 # Install dependencies
@@ -133,127 +88,127 @@ npm install
 npm start
 ```
 
-The frontend will start on `http://localhost:3000`
+✅ **Frontend will start on:** `http://localhost:3000`
 
-## API Endpoints
+---
 
-### User APIs
-- `POST /api/users/register` - Register new user
-- `POST /api/users/login` - Login user
-- `GET /api/users/{id}` - Get user by ID
+### 🎯 Default Test Credentials
 
-### Train APIs
-- `GET /api/trains` - Get all trains
-- `GET /api/trains/{id}` - Get train by ID
-- `GET /api/trains/search?source={source}&destination={destination}` - Search trains
-- `POST /api/trains` - Add new train (Admin)
-- `PUT /api/trains/{id}` - Update train (Admin)
-- `DELETE /api/trains/{id}` - Delete train (Admin)
+#### Admin Access
+- **Email:** `admin@railway.com`
+- **Password:** `admin123`
+- **Access:** Full admin dashboard, train management
 
-### Booking APIs
-- `POST /api/bookings?userId={userId}&trainId={trainId}` - Create booking
-- `GET /api/bookings/user/{userId}` - Get user bookings
-- `GET /api/bookings/{id}` - Get booking by ID
-- `PUT /api/bookings/{id}/cancel` - Cancel booking
-- `GET /api/bookings` - Get all bookings (Admin)
+#### Regular User
+- **Email:** `john@example.com`
+- **Password:** `password123`
+- **Access:** Book tickets, view bookings
 
-## Default Test Data
+---
 
-### Create Admin User
-```json
-{
-  "name": "Admin User",
-  "email": "admin@railway.com",
-  "password": "admin123",
-  "phone": "9876543210",
-  "role": "ADMIN"
-}
+## 📡 API Documentation
+
+#### **User APIs**
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/users/register` | Register new user | None |
+| POST | `/api/users/login` | Login user | None |
+| GET | `/api/users/{id}` | Get user by ID | User |
+
+#### **Train APIs**
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/trains` | Get all trains | None |
+| GET | `/api/trains/{id}` | Get train by ID | None |
+| GET | `/api/trains/search?source={s}&destination={d}` | Search trains | None |
+| GET | `/api/trains/cities` | Get all cities (autocomplete) | None |
+| GET | `/api/trains/{id}/availability?date={d}&class={c}` | Check seat availability | None |
+| POST | `/api/trains` | Add new train | Admin |
+| PUT | `/api/trains/{id}` | Update train | Admin |
+| DELETE | `/api/trains/{id}` | Delete train | Admin |
+
+#### **Booking APIs**
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/bookings?userId={u}&trainId={t}` | Create booking | User |
+| GET | `/api/bookings/user/{userId}` | Get user bookings | User |
+| GET | `/api/bookings/{id}` | Get booking by ID | User |
+| PUT | `/api/bookings/{id}/cancel` | Cancel booking | User |
+| GET | `/api/bookings` | Get all bookings | Admin |
+
+---
+
+## 🎯 Project Highlights
+
+### Multi-Class Seat Management
+Each train has **5 independent travel classes** with separate seat counts and pricing:
+- General, Sleeper, 3AC, 2AC, 1AC
+- Real-time availability tracking per date and class
+- Dynamic pricing configuration
+
+### Auto Data Seeding
+On first run, the system automatically seeds:
+- 2 users (admin + regular)
+- 32 trains covering 12 major Indian cities
+- Realistic routes, timings, and pricing
+
+### Modern Architecture
+- **Backend:** RESTful API with service-repository pattern
+- **Frontend:** Component-based React with centralized API layer
+- **Database:** MongoDB with document-based storage
+- **Styling:** Utility-first Tailwind CSS with custom theming
+
+---
+
+## 📁 Project Structure
+
+```
+Railway Reservation System/
+├── backend/
+│   ├── controllers/      # REST endpoints
+│   ├── models/           # MongoDB entities
+│   ├── repositories/     # Data access layer
+│   ├── services/         # Business logic
+│   └── DataSeeder.java   # Auto-seed 32 trains
+└── frontend/
+    ├── components/       # Reusable UI components
+    ├── pages/            # Route pages
+    └── services/         # API calls
 ```
 
-### Create Regular User
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "phone": "9876543211",
-  "role": "USER"
-}
+---
+
+## 🛠 Troubleshooting
+
+**Backend won't start:**
+```bash
+# Check port 8080 is free
+netstat -ano | findstr :8080
+
+# Verify MongoDB connection in application.properties
 ```
 
-### Sample Trains (Add via Admin Dashboard)
-```json
-{
-  "trainName": "Rajdhani Express",
-  "trainNumber": "12001",
-  "source": "Delhi",
-  "destination": "Mumbai",
-  "departureTime": "16:00",
-  "arrivalTime": "08:30",
-  "totalSeats": 500,
-  "price": 1500.00
-}
+**Frontend issues:**
+```bash
+# Clear and reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
 ```
 
-```json
-{
-  "trainName": "Shatabdi Express",
-  "trainNumber": "12002",
-  "source": "Chennai",
-  "destination": "Bangalore",
-  "departureTime": "06:00",
-  "arrivalTime": "11:30",
-  "totalSeats": 300,
-  "price": 800.00
-}
-```
+---
 
-## Usage Flow
-
-1. **Register**: Create a new user account at `/register`
-2. **Login**: Login with your credentials at `/login`
-3. **Search**: Search for trains by entering source and destination on home page
-4. **Book**: Select a train and fill passenger details to book tickets
-5. **View Bookings**: Check your bookings at `/my-bookings`
-6. **Cancel**: Cancel bookings if needed
-7. **Admin**: Login with admin credentials to access admin dashboard at `/admin`
-
-## Features to Note
-
-- **No JWT**: Simple login system using localStorage
-- **Real-time Seat Updates**: Available seats decrease on booking
-- **Booking Management**: Users can view and cancel their bookings
-- **Admin Controls**: Admins can manage trains
-- **Responsive Design**: Works on all screen sizes
-
-## Troubleshooting
-
-### Backend Issues
-- Ensure MySQL is running
-- Check database credentials in `application.properties`
-- Verify port 8080 is not in use
-
-### Frontend Issues
-- Clear browser cache
-- Check if backend is running on port 8080
-- Verify CORS configuration
-
-### Common Errors
-- **Connection refused**: Backend not running
-- **401 Unauthorized**: Invalid credentials
-- **404 Not Found**: Check API endpoint URLs
-
-## Future Enhancements
-- JWT authentication
-- Payment gateway integration
-- Email notifications
-- Train schedule management
-- Seat selection feature
-- Multiple passenger booking
-- PDF ticket generation
-
-## License
+## 📜 License
 MIT License
 
-## Contact
-For issues or questions, please open an issue on GitHub.
+## 👨‍💻 Developer
+**Abhishek Upadhyay** - [@AbhishekU007](https://github.com/AbhishekU007)
+
+---
+
+<div align="center">
+
+**⭐ Star this repo if you find it useful!**
+
+Built with ❤️ using Spring Boot & React
+
+</div>
