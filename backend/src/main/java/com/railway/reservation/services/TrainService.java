@@ -1,9 +1,12 @@
 package com.railway.reservation.services;
 
 import com.railway.reservation.models.Train;
+import com.railway.reservation.models.Booking;
 import com.railway.reservation.repositories.TrainRepository;
+import com.railway.reservation.repositories.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -12,14 +15,27 @@ public class TrainService {
     @Autowired
     private TrainRepository trainRepository;
     
+    @Autowired
+    private BookingRepository bookingRepository;
+    
     // Add new train
     public Train addTrain(Train train) {
+        // Calculate total seats if not provided
+        if (train.getTotalSeats() == null || train.getTotalSeats() == 0) {
+            int total = (train.getGeneralSeats() != null ? train.getGeneralSeats() : 0) +
+                       (train.getSleeperSeats() != null ? train.getSleeperSeats() : 0) +
+                       (train.getThirdAcSeats() != null ? train.getThirdAcSeats() : 0) +
+                       (train.getSecondAcSeats() != null ? train.getSecondAcSeats() : 0) +
+                       (train.getFirstAcSeats() != null ? train.getFirstAcSeats() : 0);
+            train.setTotalSeats(total);
+        }
+        
         train.setAvailableSeats(train.getTotalSeats());
-        train.setAvailableGeneralSeats(train.getGeneralSeats());
-        train.setAvailableSleeperSeats(train.getSleeperSeats());
-        train.setAvailableThirdAcSeats(train.getThirdAcSeats());
-        train.setAvailableSecondAcSeats(train.getSecondAcSeats());
-        train.setAvailableFirstAcSeats(train.getFirstAcSeats());
+        train.setAvailableGeneralSeats(train.getGeneralSeats() != null ? train.getGeneralSeats() : 0);
+        train.setAvailableSleeperSeats(train.getSleeperSeats() != null ? train.getSleeperSeats() : 0);
+        train.setAvailableThirdAcSeats(train.getThirdAcSeats() != null ? train.getThirdAcSeats() : 0);
+        train.setAvailableSecondAcSeats(train.getSecondAcSeats() != null ? train.getSecondAcSeats() : 0);
+        train.setAvailableFirstAcSeats(train.getFirstAcSeats() != null ? train.getFirstAcSeats() : 0);
         return trainRepository.save(train);
     }
     
@@ -36,7 +52,7 @@ public class TrainService {
     
     // Search trains by source and destination
     public List<Train> searchTrains(String source, String destination) {
-        return trainRepository.findBySourceAndDestination(source, destination);
+        return trainRepository.findBySourceIgnoreCaseAndDestinationIgnoreCase(source, destination);
     }
     
     // Update train
@@ -80,25 +96,31 @@ public class TrainService {
         
         switch (travelClass.toUpperCase()) {
             case "GENERAL":
-                train.setAvailableGeneralSeats(train.getAvailableGeneralSeats() - seats);
+                int newGeneralSeats = (train.getAvailableGeneralSeats() != null ? train.getAvailableGeneralSeats() : 0) - seats;
+                train.setAvailableGeneralSeats(newGeneralSeats);
                 break;
             case "SLEEPER":
-                train.setAvailableSleeperSeats(train.getAvailableSleeperSeats() - seats);
+                int newSleeperSeats = (train.getAvailableSleeperSeats() != null ? train.getAvailableSleeperSeats() : 0) - seats;
+                train.setAvailableSleeperSeats(newSleeperSeats);
                 break;
             case "THIRD_AC":
-                train.setAvailableThirdAcSeats(train.getAvailableThirdAcSeats() - seats);
+                int newThirdAcSeats = (train.getAvailableThirdAcSeats() != null ? train.getAvailableThirdAcSeats() : 0) - seats;
+                train.setAvailableThirdAcSeats(newThirdAcSeats);
                 break;
             case "SECOND_AC":
-                train.setAvailableSecondAcSeats(train.getAvailableSecondAcSeats() - seats);
+                int newSecondAcSeats = (train.getAvailableSecondAcSeats() != null ? train.getAvailableSecondAcSeats() : 0) - seats;
+                train.setAvailableSecondAcSeats(newSecondAcSeats);
                 break;
             case "FIRST_AC":
-                train.setAvailableFirstAcSeats(train.getAvailableFirstAcSeats() - seats);
+                int newFirstAcSeats = (train.getAvailableFirstAcSeats() != null ? train.getAvailableFirstAcSeats() : 0) - seats;
+                train.setAvailableFirstAcSeats(newFirstAcSeats);
                 break;
             default:
                 throw new RuntimeException("Invalid travel class");
         }
         
-        train.setAvailableSeats(train.getAvailableSeats() - seats);
+        int totalAvailable = (train.getAvailableSeats() != null ? train.getAvailableSeats() : 0) - seats;
+        train.setAvailableSeats(totalAvailable);
         trainRepository.save(train);
     }
     
@@ -122,17 +144,51 @@ public class TrainService {
     public Integer getAvailableSeatsByClass(Train train, String travelClass) {
         switch (travelClass.toUpperCase()) {
             case "GENERAL":
-                return train.getAvailableGeneralSeats();
+                return train.getAvailableGeneralSeats() != null ? train.getAvailableGeneralSeats() : 0;
             case "SLEEPER":
-                return train.getAvailableSleeperSeats();
+                return train.getAvailableSleeperSeats() != null ? train.getAvailableSleeperSeats() : 0;
             case "THIRD_AC":
-                return train.getAvailableThirdAcSeats();
+                return train.getAvailableThirdAcSeats() != null ? train.getAvailableThirdAcSeats() : 0;
             case "SECOND_AC":
-                return train.getAvailableSecondAcSeats();
+                return train.getAvailableSecondAcSeats() != null ? train.getAvailableSecondAcSeats() : 0;
             case "FIRST_AC":
-                return train.getAvailableFirstAcSeats();
+                return train.getAvailableFirstAcSeats() != null ? train.getAvailableFirstAcSeats() : 0;
             default:
-                return train.getAvailableSeats();
+                return train.getAvailableSeats() != null ? train.getAvailableSeats() : 0;
         }
+    }
+    
+    public Integer getTotalSeatsByClass(Train train, String travelClass) {
+        switch (travelClass.toUpperCase()) {
+            case "GENERAL":
+                return train.getGeneralSeats() != null ? train.getGeneralSeats() : 0;
+            case "SLEEPER":
+                return train.getSleeperSeats() != null ? train.getSleeperSeats() : 0;
+            case "THIRD_AC":
+                return train.getThirdAcSeats() != null ? train.getThirdAcSeats() : 0;
+            case "SECOND_AC":
+                return train.getSecondAcSeats() != null ? train.getSecondAcSeats() : 0;
+            case "FIRST_AC":
+                return train.getFirstAcSeats() != null ? train.getFirstAcSeats() : 0;
+            default:
+                return train.getTotalSeats() != null ? train.getTotalSeats() : 0;
+        }
+    }
+    
+    // Get available seats for a specific date and class
+    public Integer getAvailableSeatsForDate(String trainId, LocalDate travelDate, String travelClass) {
+        Train train = getTrainById(trainId);
+        Integer totalSeats = getTotalSeatsByClass(train, travelClass);
+        
+        // Get booked seats for this specific date and class
+        List<Booking> bookings = bookingRepository.findByTrainIdAndTravelDateAndTravelClassAndStatus(
+            trainId, travelDate, travelClass, "CONFIRMED"
+        );
+        
+        Integer bookedSeats = bookings.stream()
+            .mapToInt(Booking::getNumberOfSeats)
+            .sum();
+        
+        return totalSeats - bookedSeats;
     }
 }

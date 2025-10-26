@@ -6,12 +6,11 @@ const Home = () => {
   const [source, setSource] = useState('');
   const [destination, setDestination] = useState('');
   const [travelDate, setTravelDate] = useState('');
-  const [travelClass, setTravelClass] = useState('SLEEPER');
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (source && destination && travelDate) {
-      navigate(`/trains?source=${source}&destination=${destination}&date=${travelDate}&class=${travelClass}`);
+      navigate(`/trains?source=${source}&destination=${destination}&date=${travelDate}`);
     }
   };
 
@@ -70,24 +69,6 @@ const Home = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
-              </div>
-
-              <div>
-                <label className="block text-left text-gray-700 font-semibold mb-2">
-                  Travel Class
-                </label>
-                <select
-                  value={travelClass}
-                  onChange={(e) => setTravelClass(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="GENERAL">General</option>
-                  <option value="SLEEPER">Sleeper</option>
-                  <option value="THIRD_AC">Third AC</option>
-                  <option value="SECOND_AC">Second AC</option>
-                  <option value="FIRST_AC">First AC</option>
-                </select>
               </div>
 
               <button

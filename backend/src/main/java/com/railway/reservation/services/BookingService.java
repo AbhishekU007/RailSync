@@ -27,10 +27,13 @@ public class BookingService {
         User user = userService.getUserById(userId);
         Train train = trainService.getTrainById(trainId);
         
-        Integer availableSeats = trainService.getAvailableSeatsByClass(train, booking.getTravelClass());
+        // Check available seats for this specific date and class
+        Integer bookedSeats = getBookedSeatsForDateAndClass(trainId, booking.getTravelDate(), booking.getTravelClass());
+        Integer totalSeatsForClass = trainService.getTotalSeatsByClass(train, booking.getTravelClass());
+        Integer availableSeats = totalSeatsForClass - bookedSeats;
         
         if (availableSeats < booking.getNumberOfSeats()) {
-            throw new RuntimeException("Not enough seats available in " + booking.getTravelClass() + " class");
+            throw new RuntimeException("Not enough seats available in " + booking.getTravelClass() + " class for this date. Only " + availableSeats + " seats available.");
         }
         
         booking.setUser(user);
@@ -39,9 +42,18 @@ public class BookingService {
         Double pricePerSeat = trainService.getPriceByClass(train, booking.getTravelClass());
         booking.setTotalPrice(pricePerSeat * booking.getNumberOfSeats());
         
-        trainService.updateAvailableSeatsByClass(trainId, booking.getNumberOfSeats(), booking.getTravelClass());
-        
         return bookingRepository.save(booking);
+    }
+    
+    // Get booked seats for a specific train, date, and class
+    private Integer getBookedSeatsForDateAndClass(String trainId, java.time.LocalDate travelDate, String travelClass) {
+        List<Booking> bookings = bookingRepository.findByTrainIdAndTravelDateAndTravelClassAndStatus(
+            trainId, travelDate, travelClass, "CONFIRMED"
+        );
+        
+        return bookings.stream()
+            .mapToInt(Booking::getNumberOfSeats)
+            .sum();
     }
     
     // Get all bookings for a user
@@ -67,28 +79,7 @@ public class BookingService {
         booking.setStatus("CANCELLED");
         bookingRepository.save(booking);
         
-        Train train = booking.getTrain();
-        
-        switch (booking.getTravelClass().toUpperCase()) {
-            case "GENERAL":
-                train.setAvailableGeneralSeats(train.getAvailableGeneralSeats() + booking.getNumberOfSeats());
-                break;
-            case "SLEEPER":
-                train.setAvailableSleeperSeats(train.getAvailableSleeperSeats() + booking.getNumberOfSeats());
-                break;
-            case "THIRD_AC":
-                train.setAvailableThirdAcSeats(train.getAvailableThirdAcSeats() + booking.getNumberOfSeats());
-                break;
-            case "SECOND_AC":
-                train.setAvailableSecondAcSeats(train.getAvailableSecondAcSeats() + booking.getNumberOfSeats());
-                break;
-            case "FIRST_AC":
-                train.setAvailableFirstAcSeats(train.getAvailableFirstAcSeats() + booking.getNumberOfSeats());
-                break;
-        }
-        
-        train.setAvailableSeats(train.getAvailableSeats() + booking.getNumberOfSeats());
-        trainService.updateTrain(train.getId(), train);
+        // No need to update train seats since we're calculating availability dynamically
     }
     
     // Get all bookings (admin)

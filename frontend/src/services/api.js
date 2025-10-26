@@ -17,8 +17,10 @@ export const getUserById = (id) => api.get(`/users/${id}`);
 // Train APIs
 export const getAllTrains = () => api.get('/trains');
 export const getTrainById = (id) => api.get(`/trains/${id}`);
-export const searchTrains = (source, destination, date, travelClass) => 
-  api.get('/trains/search', { params: { source, destination, date, class: travelClass } });
+export const searchTrains = (source, destination, date) => 
+  api.get('/trains/search', { params: { source, destination, date } });
+export const getTrainAvailability = (trainId, date, travelClass) =>
+  api.get(`/trains/${trainId}/availability`, { params: { date, travelClass } });
 export const addTrain = (trainData) => api.post('/trains', trainData);
 export const updateTrain = (id, trainData) => api.put(`/trains/${id}`, trainData);
 export const deleteTrain = (id) => api.delete(`/trains/${id}`);

@@ -1,28 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { searchTrains } from '../services/api';
+import { searchTrains, getTrainAvailability } from '../services/api';
 
 const TrainList = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [trains, setTrains] = useState([]);
+  const [trainAvailability, setTrainAvailability] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const source = searchParams.get('source');
   const destination = searchParams.get('destination');
   const date = searchParams.get('date');
-  const travelClass = searchParams.get('class');
 
   useEffect(() => {
     fetchTrains();
-  }, [source, destination, date, travelClass]);
+  }, [source, destination, date]);
 
   const fetchTrains = async () => {
     try {
       setLoading(true);
-      const response = await searchTrains(source, destination, date, travelClass);
+      const response = await searchTrains(source, destination, date);
       setTrains(response.data);
+      
+      // Fetch availability for each train and class
+      const availabilityData = {};
+      for (const train of response.data) {
+        availabilityData[train.id] = {};
+        const classes = ['GENERAL', 'SLEEPER', 'THIRD_AC', 'SECOND_AC', 'FIRST_AC'];
+        
+        for (const travelClass of classes) {
+          try {
+            const availResponse = await getTrainAvailability(train.id, date, travelClass);
+            availabilityData[train.id][travelClass] = availResponse.data.availableSeats;
+          } catch (err) {
+            // If error, fall back to train's default seats
+            availabilityData[train.id][travelClass] = getClassSeats(train, travelClass);
+          }
+        }
+      }
+      
+      setTrainAvailability(availabilityData);
     } catch (err) {
       setError('Failed to fetch trains. Please try again.');
     } finally {
@@ -30,7 +49,28 @@ const TrainList = () => {
     }
   };
 
-  const handleBookNow = (trainId) => {
+  const getClassSeats = (train, className) => {
+    switch (className) {
+      case 'GENERAL':
+        return train.generalSeats || 0;
+      case 'SLEEPER':
+        return train.sleeperSeats || 0;
+      case 'THIRD_AC':
+        return train.thirdAcSeats || 0;
+      case 'SECOND_AC':
+        return train.secondAcSeats || 0;
+      case 'FIRST_AC':
+        return train.firstAcSeats || 0;
+      default:
+        return 0;
+    }
+  };
+
+  const getAvailableSeats = (trainId, travelClass) => {
+    return trainAvailability[trainId]?.[travelClass] ?? 0;
+  };
+
+  const handleBookNow = (trainId, travelClass) => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
       alert('Please login to book tickets');
@@ -38,57 +78,6 @@ const TrainList = () => {
       return;
     }
     navigate(`/book/${trainId}?date=${date}&class=${travelClass}`);
-  };
-
-  const getClassPrice = (train, className) => {
-    switch (className) {
-      case 'GENERAL':
-        return train.generalPrice;
-      case 'SLEEPER':
-        return train.sleeperPrice;
-      case 'THIRD_AC':
-        return train.thirdAcPrice;
-      case 'SECOND_AC':
-        return train.secondAcPrice;
-      case 'FIRST_AC':
-        return train.firstAcPrice;
-      default:
-        return train.price;
-    }
-  };
-
-  const getClassSeats = (train, className) => {
-    switch (className) {
-      case 'GENERAL':
-        return train.availableGeneralSeats;
-      case 'SLEEPER':
-        return train.availableSleeperSeats;
-      case 'THIRD_AC':
-        return train.availableThirdAcSeats;
-      case 'SECOND_AC':
-        return train.availableSecondAcSeats;
-      case 'FIRST_AC':
-        return train.availableFirstAcSeats;
-      default:
-        return train.availableSeats;
-    }
-  };
-
-  const getClassDisplayName = (className) => {
-    switch (className) {
-      case 'GENERAL':
-        return 'General';
-      case 'SLEEPER':
-        return 'Sleeper';
-      case 'THIRD_AC':
-        return 'Third AC';
-      case 'SECOND_AC':
-        return 'Second AC';
-      case 'FIRST_AC':
-        return 'First AC';
-      default:
-        return className;
-    }
   };
 
   if (loading) {
@@ -107,7 +96,7 @@ const TrainList = () => {
             Trains from {source} to {destination}
           </h1>
           <p className="text-gray-600 mt-2">
-            Found {trains.length} train(s) for {date} - {getClassDisplayName(travelClass)} Class
+            Found {trains.length} train(s) for {date}
           </p>
         </div>
 
@@ -130,59 +119,139 @@ const TrainList = () => {
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
-            {trains.map((train) => {
-              const classPrice = getClassPrice(train, travelClass);
-              const availableSeats = getClassSeats(train, travelClass);
-              
-              return (
-                <div
-                  key={train.id}
-                  className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-200"
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="flex-1">
-                      <h2 className="text-2xl font-bold text-gray-800">
-                        {train.trainName}
-                      </h2>
-                      <p className="text-gray-600">Train No: {train.trainNumber}</p>
-                      
-                      <div className="mt-4 grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-500">Departure</p>
-                          <p className="font-semibold">{train.departureTime}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Arrival</p>
-                          <p className="font-semibold">{train.arrivalTime}</p>
-                        </div>
+          <div className="space-y-6">
+            {trains.map((train) => (
+              <div
+                key={train.id}
+                className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-200"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {train.trainName}
+                    </h2>
+                    <p className="text-gray-600">Train No: {train.trainNumber}</p>
+                    
+                    <div className="mt-3 flex gap-8">
+                      <div>
+                        <p className="text-sm text-gray-500">Departure</p>
+                        <p className="font-semibold text-lg">{train.departureTime}</p>
                       </div>
-                      
-                      <div className="mt-3">
-                        <p className="text-sm text-gray-500">Class</p>
-                        <p className="font-semibold text-blue-600">{getClassDisplayName(travelClass)}</p>
+                      <div>
+                        <p className="text-sm text-gray-500">Arrival</p>
+                        <p className="font-semibold text-lg">{train.arrivalTime}</p>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    <div className="ml-8 text-right">
-                      <p className="text-3xl font-bold text-blue-600">
-                        ₹{classPrice}
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {availableSeats} seats available
+                {/* All Classes Display */}
+                <div className="border-t pt-4 mt-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Available Classes:</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    {/* General Class */}
+                    <div className="border border-gray-200 rounded-lg p-3 hover:border-blue-500 hover:shadow-md transition">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">General</p>
+                          <p className="text-2xl font-bold text-blue-600">₹{train.generalPrice}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">
+                        {getAvailableSeats(train.id, 'GENERAL')} seats available
                       </p>
                       <button
-                        onClick={() => handleBookNow(train.id)}
-                        disabled={availableSeats === 0}
-                        className="mt-4 bg-green-600 text-white px-8 py-2 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        onClick={() => handleBookNow(train.id, 'GENERAL')}
+                        disabled={getAvailableSeats(train.id, 'GENERAL') === 0}
+                        className="w-full bg-blue-600 text-white py-1.5 rounded text-sm font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
-                        {availableSeats === 0 ? 'Sold Out' : 'Book Now'}
+                        {getAvailableSeats(train.id, 'GENERAL') === 0 ? 'Sold Out' : 'Book'}
+                      </button>
+                    </div>
+
+                    {/* Sleeper Class */}
+                    <div className="border border-gray-200 rounded-lg p-3 hover:border-blue-500 hover:shadow-md transition">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">Sleeper</p>
+                          <p className="text-2xl font-bold text-blue-600">₹{train.sleeperPrice}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">
+                        {getAvailableSeats(train.id, 'SLEEPER')} seats available
+                      </p>
+                      <button
+                        onClick={() => handleBookNow(train.id, 'SLEEPER')}
+                        disabled={getAvailableSeats(train.id, 'SLEEPER') === 0}
+                        className="w-full bg-blue-600 text-white py-1.5 rounded text-sm font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        {getAvailableSeats(train.id, 'SLEEPER') === 0 ? 'Sold Out' : 'Book'}
+                      </button>
+                    </div>
+
+                    {/* Third AC Class */}
+                    <div className="border border-gray-200 rounded-lg p-3 hover:border-blue-500 hover:shadow-md transition">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">Third AC</p>
+                          <p className="text-2xl font-bold text-blue-600">₹{train.thirdAcPrice}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">
+                        {getAvailableSeats(train.id, 'THIRD_AC')} seats available
+                      </p>
+                      <button
+                        onClick={() => handleBookNow(train.id, 'THIRD_AC')}
+                        disabled={getAvailableSeats(train.id, 'THIRD_AC') === 0}
+                        className="w-full bg-blue-600 text-white py-1.5 rounded text-sm font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        {getAvailableSeats(train.id, 'THIRD_AC') === 0 ? 'Sold Out' : 'Book'}
+                      </button>
+                    </div>
+
+                    {/* Second AC Class */}
+                    <div className="border border-gray-200 rounded-lg p-3 hover:border-blue-500 hover:shadow-md transition">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">Second AC</p>
+                          <p className="text-2xl font-bold text-blue-600">₹{train.secondAcPrice}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">
+                        {getAvailableSeats(train.id, 'SECOND_AC')} seats available
+                      </p>
+                      <button
+                        onClick={() => handleBookNow(train.id, 'SECOND_AC')}
+                        disabled={getAvailableSeats(train.id, 'SECOND_AC') === 0}
+                        className="w-full bg-blue-600 text-white py-1.5 rounded text-sm font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        {getAvailableSeats(train.id, 'SECOND_AC') === 0 ? 'Sold Out' : 'Book'}
+                      </button>
+                    </div>
+
+                    {/* First AC Class */}
+                    <div className="border border-gray-200 rounded-lg p-3 hover:border-blue-500 hover:shadow-md transition">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700">First AC</p>
+                          <p className="text-2xl font-bold text-blue-600">₹{train.firstAcPrice}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">
+                        {getAvailableSeats(train.id, 'FIRST_AC')} seats available
+                      </p>
+                      <button
+                        onClick={() => handleBookNow(train.id, 'FIRST_AC')}
+                        disabled={getAvailableSeats(train.id, 'FIRST_AC') === 0}
+                        className="w-full bg-blue-600 text-white py-1.5 rounded text-sm font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        {getAvailableSeats(train.id, 'FIRST_AC') === 0 ? 'Sold Out' : 'Book'}
                       </button>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
       </div>

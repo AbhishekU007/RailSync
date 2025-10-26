@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,10 +55,33 @@ public class TrainController {
     public ResponseEntity<List<Train>> searchTrains(
             @RequestParam String source,
             @RequestParam String destination,
-            @RequestParam(required = false) String date,
-            @RequestParam(required = false) String travelClass) {
+            @RequestParam(required = false) String date) {
         List<Train> trains = trainService.searchTrains(source, destination);
         return ResponseEntity.ok(trains);
+    }
+    
+    // Get available seats for a specific train, date, and class
+    @GetMapping("/{id}/availability")
+    public ResponseEntity<?> getTrainAvailability(
+            @PathVariable String id,
+            @RequestParam String date,
+            @RequestParam String travelClass) {
+        try {
+            java.time.LocalDate travelDate = java.time.LocalDate.parse(date);
+            Train train = trainService.getTrainById(id);
+            int availableSeats = trainService.getAvailableSeatsForDate(id, travelDate, travelClass);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("trainId", id);
+            response.put("date", date);
+            response.put("class", travelClass);
+            response.put("availableSeats", availableSeats);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
     
     // Update train (Admin)

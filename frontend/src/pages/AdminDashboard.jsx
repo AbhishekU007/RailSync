@@ -16,6 +16,16 @@ const AdminDashboard = () => {
     arrivalTime: '',
     totalSeats: '',
     price: '',
+    generalPrice: '',
+    sleeperPrice: '',
+    thirdAcPrice: '',
+    secondAcPrice: '',
+    firstAcPrice: '',
+    generalSeats: '',
+    sleeperSeats: '',
+    thirdAcSeats: '',
+    secondAcSeats: '',
+    firstAcSeats: '',
   });
 
   useEffect(() => {
@@ -49,7 +59,24 @@ const AdminDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addTrain(formData);
+      // Calculate total seats from all classes
+      const totalSeats = 
+        parseInt(formData.generalSeats || 0) +
+        parseInt(formData.sleeperSeats || 0) +
+        parseInt(formData.thirdAcSeats || 0) +
+        parseInt(formData.secondAcSeats || 0) +
+        parseInt(formData.firstAcSeats || 0);
+
+      // Calculate average price or use sleeper price as default
+      const averagePrice = formData.sleeperPrice || formData.generalPrice;
+
+      const trainData = {
+        ...formData,
+        totalSeats: totalSeats,
+        price: averagePrice,
+      };
+
+      await addTrain(trainData);
       alert('Train added successfully');
       setShowForm(false);
       setFormData({
@@ -61,6 +88,16 @@ const AdminDashboard = () => {
         arrivalTime: '',
         totalSeats: '',
         price: '',
+        generalPrice: '',
+        sleeperPrice: '',
+        thirdAcPrice: '',
+        secondAcPrice: '',
+        firstAcPrice: '',
+        generalSeats: '',
+        sleeperSeats: '',
+        thirdAcSeats: '',
+        secondAcSeats: '',
+        firstAcSeats: '',
       });
       fetchTrains();
     } catch (err) {
@@ -190,16 +227,22 @@ const AdminDashboard = () => {
                 />
               </div>
 
+              <div className="col-span-2">
+                <h3 className="text-lg font-bold text-gray-800 mt-4 mb-3">
+                  Class-wise Seat Allocation
+                </h3>
+              </div>
+
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">
-                  Total Seats
+                  General Seats
                 </label>
                 <input
                   type="number"
-                  name="totalSeats"
-                  value={formData.totalSeats}
+                  name="generalSeats"
+                  value={formData.generalSeats}
                   onChange={handleChange}
-                  min="1"
+                  min="0"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -207,12 +250,136 @@ const AdminDashboard = () => {
 
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">
-                  Price (₹)
+                  General Price (₹)
                 </label>
                 <input
                   type="number"
-                  name="price"
-                  value={formData.price}
+                  name="generalPrice"
+                  value={formData.generalPrice}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Sleeper Seats
+                </label>
+                <input
+                  type="number"
+                  name="sleeperSeats"
+                  value={formData.sleeperSeats}
+                  onChange={handleChange}
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Sleeper Price (₹)
+                </label>
+                <input
+                  type="number"
+                  name="sleeperPrice"
+                  value={formData.sleeperPrice}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Third AC Seats
+                </label>
+                <input
+                  type="number"
+                  name="thirdAcSeats"
+                  value={formData.thirdAcSeats}
+                  onChange={handleChange}
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Third AC Price (₹)
+                </label>
+                <input
+                  type="number"
+                  name="thirdAcPrice"
+                  value={formData.thirdAcPrice}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Second AC Seats
+                </label>
+                <input
+                  type="number"
+                  name="secondAcSeats"
+                  value={formData.secondAcSeats}
+                  onChange={handleChange}
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Second AC Price (₹)
+                </label>
+                <input
+                  type="number"
+                  name="secondAcPrice"
+                  value={formData.secondAcPrice}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  First AC Seats
+                </label>
+                <input
+                  type="number"
+                  name="firstAcSeats"
+                  value={formData.firstAcSeats}
+                  onChange={handleChange}
+                  min="0"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  First AC Price (₹)
+                </label>
+                <input
+                  type="number"
+                  name="firstAcPrice"
+                  value={formData.firstAcPrice}
                   onChange={handleChange}
                   min="0"
                   step="0.01"
@@ -235,42 +402,67 @@ const AdminDashboard = () => {
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4">All Trains</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-3 text-left">Train Name</th>
-                  <th className="px-4 py-3 text-left">Train No</th>
-                  <th className="px-4 py-3 text-left">Route</th>
-                  <th className="px-4 py-3 text-left">Seats</th>
-                  <th className="px-4 py-3 text-left">Price</th>
-                  <th className="px-4 py-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {trains.map((train) => (
-                  <tr key={train.id} className="border-b">
-                    <td className="px-4 py-3">{train.trainName}</td>
-                    <td className="px-4 py-3">{train.trainNumber}</td>
-                    <td className="px-4 py-3">
+          <div className="space-y-4">
+            {trains.map((train) => (
+              <div key={train.id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">{train.trainName}</h3>
+                    <p className="text-gray-600">Train No: {train.trainNumber}</p>
+                    <p className="text-gray-600 mt-1">
                       {train.source} → {train.destination}
-                    </td>
-                    <td className="px-4 py-3">
-                      {train.availableSeats}/{train.totalSeats}
-                    </td>
-                    <td className="px-4 py-3">₹{train.price}</td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleDelete(train.id)}
-                        className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {train.departureTime} - {train.arrivalTime}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(train.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-5 gap-3">
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p className="text-xs text-gray-600 font-semibold">General</p>
+                    <p className="text-lg font-bold text-blue-600">₹{train.generalPrice}</p>
+                    <p className="text-xs text-gray-500">
+                      {train.availableGeneralSeats}/{train.generalSeats} seats
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p className="text-xs text-gray-600 font-semibold">Sleeper</p>
+                    <p className="text-lg font-bold text-blue-600">₹{train.sleeperPrice}</p>
+                    <p className="text-xs text-gray-500">
+                      {train.availableSleeperSeats}/{train.sleeperSeats} seats
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p className="text-xs text-gray-600 font-semibold">Third AC</p>
+                    <p className="text-lg font-bold text-blue-600">₹{train.thirdAcPrice}</p>
+                    <p className="text-xs text-gray-500">
+                      {train.availableThirdAcSeats}/{train.thirdAcSeats} seats
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p className="text-xs text-gray-600 font-semibold">Second AC</p>
+                    <p className="text-lg font-bold text-blue-600">₹{train.secondAcPrice}</p>
+                    <p className="text-xs text-gray-500">
+                      {train.availableSecondAcSeats}/{train.secondAcSeats} seats
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p className="text-xs text-gray-600 font-semibold">First AC</p>
+                    <p className="text-lg font-bold text-blue-600">₹{train.firstAcPrice}</p>
+                    <p className="text-xs text-gray-500">
+                      {train.availableFirstAcSeats}/{train.firstAcSeats} seats
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

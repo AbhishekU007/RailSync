@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface TrainRepository extends MongoRepository<Train, String> {
+    List<Train> findBySourceIgnoreCaseAndDestinationIgnoreCase(String source, String destination);
     List<Train> findBySourceAndDestination(String source, String destination);
     Optional<Train> findByTrainNumber(String trainNumber);
 }
