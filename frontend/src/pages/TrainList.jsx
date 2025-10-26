@@ -131,16 +131,16 @@ const TrainList = () => {
                       {train.trainName}
                     </h2>
                     <p className="text-gray-600">Train No: {train.trainNumber}</p>
-                    
-                    <div className="mt-3 flex gap-8">
-                      <div>
-                        <p className="text-sm text-gray-500">Departure</p>
-                        <p className="font-semibold text-lg">{train.departureTime}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Arrival</p>
-                        <p className="font-semibold text-lg">{train.arrivalTime}</p>
-                      </div>
+                  </div>
+                  
+                  <div className="flex gap-8 text-right">
+                    <div>
+                      <p className="text-sm text-gray-500">Departure</p>
+                      <p className="font-semibold text-lg">{train.departureTime}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Arrival</p>
+                      <p className="font-semibold text-lg">{train.arrivalTime}</p>
                     </div>
                   </div>
                 </div>
